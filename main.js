@@ -3,11 +3,13 @@ $(document).ready(function () {
 
   function newGame() {
     move = 0;
-    const shuffle = (arr) => {
-      return arr.sort(() => Math.round(Math.random() * 100) - 50);
-    }
+    $('#output').html(move);
+    // const shuffle = (arr) => {
+    //   return arr.sort(() => Math.round(Math.random() * 100) - 50);
+    // }
     var arrOutput = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
-     shuffle(arrOutput);
+    // shuffle(arrOutput);
+    //Заполняем от 1 до 15
     for (var i = 0; i < 16; i++) {
       if (i == 15) {
         $('.block>.block-color>.number').eq(i).html(" ");
@@ -16,7 +18,85 @@ $(document).ready(function () {
       }
 
     }
+
+    //Рандомное количество перестановок 
+    function getRandomArbitrary(min, max) {
+      return Math.floor(Math.random() * (max - min) + min);
+    }
+    permutation = getRandomArbitrary(100, 20);
+
+    function chengElse(a, b) {
+      var swap = $('.block:eq(' + a + ') .block-color .number').text();
+      var swap2 = $('.block:eq(' + b + ') .block-color .number').text();
+      $('.block:eq(' + b + ')  .block-color .number').html(swap);
+      $('.block:eq(' + a + ') .block-color .number').html(swap2);
+      return b;
+    }
+    // проверка на расположение 
+    function equalsTop(a, b) {
+      var flag = $('.block:eq(' + a + ')').offset().top == $('.block:eq(' + b + ')').offset().top;
+      return Boolean(flag)
+    }
+    var k = 15;
+    var randomSign;
+    var randomNumber;
+    while (permutation != 0) {
+
+      randomSign = ((Math.random() < 0.5) ? -1 : 1);
+      randomNumber = ((Math.random() < 0.5) ? 1 : 4);
+
+
+      if (randomSign < 0) {
+        if (k + randomSign * randomNumber >= 0) {
+          if (randomNumber == 1 && equalsTop(k, (k + randomSign * randomNumber))) {
+            k = chengElse(k, (k + randomSign * randomNumber));
+
+          } else {
+            if (randomNumber == 4) {
+              k = chengElse(k, (k + randomSign * randomNumber));
+            }
+
+          }
+        } else {
+          if (randomNumber == 1 && equalsTop(k, (k - randomSign * randomNumber))) {
+            k = chengElse(k, (k - randomSign * randomNumber));
+
+          } else {
+            if (randomNumber == 4) {
+              k = chengElse(k, (k - randomSign * randomNumber));
+            }
+
+          }
+
+        }
+      } else {
+        if (k + randomSign * randomNumber <= 15) {
+          if (randomNumber == 1 && equalsTop(k, (k + randomSign * randomNumber))) {
+            k = chengElse(k, (k + randomSign * randomNumber));
+
+          } else {
+            if (randomNumber == 4) {
+              k = chengElse(k, (k + randomSign * randomNumber));
+            }
+
+          }
+
+        } else {
+          if (randomNumber == 1 && equalsTop(k, (k - randomSign * randomNumber))) {
+            k = chengElse(k, (k - randomSign * randomNumber));
+
+          } else {
+            if (randomNumber == 4) {
+              k = chengElse(k, (k - randomSign * randomNumber));
+            }
+          }
+        }
+      }
+      permutation -= 1;
+    }
+
   }
+  var permutation;
   var flag = -1;
   var index1
   var index2
@@ -24,12 +104,7 @@ $(document).ready(function () {
   var searchIndex;
   var move
   newGame();
-  //console.log(arrOutput);
 
-  //   const start= new Date().getTime();
-
-  // const end = new Date().getTime();
-  //console.log('SecondWay: ${end - start}ms');
   $('.field').on('click', function (e) {
     $('.won').css('display', 'none');
     $('.play').css('display', 'flex');
@@ -46,7 +121,7 @@ $(document).ready(function () {
       $('.active:eq(1) .block-color .number').fadeTo(5, 0.3).html(swap2).fadeTo(500, 1);
     }
     //Проверка на собранность 
-    function composure() {
+    function composure(move) {
       mass = [];
       for (var i = 0; i < 16; i++) {
         mass.push($('.block>.block-color>.number').eq(i).text());
@@ -57,14 +132,12 @@ $(document).ready(function () {
       mass.splice(searchIndex, 1);
       for (var i = 0; i < mass.length; i++) {
         if (mass[i] != (1 + i)) {
-          move += 1;
-          $('#output').html(move);
           break;
         } else {
           if (mass[i] == 15 && i == (mass.length - 1)) {
             move += 1;
-          $('#output').html(move);
-          $('#move').html("Ходы: "+move);
+            $('#output').html(move);
+            $('#move').html("Ходы: " + move);
             $('.won').css('display', 'flex');
             $('.play').css('display', 'none');
 
@@ -72,6 +145,7 @@ $(document).ready(function () {
         }
 
       }
+
     }
     if (flag !== -1) {
 
@@ -82,15 +156,32 @@ $(document).ready(function () {
         if (index2 == -1) {
           index2 = 0;
         }
+
         if (($('.active:eq(0) .block-color .number').text() == ' ')) {
 
-          if (index1 - 1 == index2 || index1 + 1 == index2 || index1 - 4 == index2 || index1 + 4 == index2) {
+          if (index1 - 1 == index2 || index1 + 1 == index2 && $('.active:eq(0)').offset().top == $('.active:eq(1)').offset().top) {
             chengElse();
+            move += 1;
+            $('#output').html(move);
+          } else {
+            if (index1 - 4 == index2 || index1 + 4 == index2) {
+              chengElse();
+              move += 1;
+              $('#output').html(move);
+            }
           }
         } else {
           if (($('.active:eq(1) .block-color .number').text() == ' ')) {
-            if (index2 + 1 == index1 || index2 - 1 == index1 || index2 + 4 == index1 || index2 - 4 == index1) {
+            if (index2 + 1 == index1 || index2 - 1 == index1 && ($('.active:eq(0)').offset().top) == ($('.active:eq(1)').offset().top)) {
               chengElse();
+              move += 1;
+              $('#output').html(move);
+            } else {
+              if (index2 + 4 == index1 || index2 - 4 == index1) {
+                chengElse();
+                move += 1;
+                $('#output').html(move);
+              }
             }
           }
         }
@@ -98,14 +189,14 @@ $(document).ready(function () {
 
         $('.block').removeClass("active");
       }
-
-      composure();
+      //Проверка на собранность 
+      composure(move);
     } else {
 
       block1 = $(this, '.block-color .number').text();
       flag = $('.block').index(this);
     }
-    //Проверка на собранность 
+
 
 
   });
