@@ -23,7 +23,7 @@ $(document).ready(function () {
     function getRandomArbitrary(min, max) {
       return Math.floor(Math.random() * (max - min) + min);
     }
-    permutation = getRandomArbitrary(100, 20);
+    permutation = getRandomArbitrary(300, 50);
 
     function chengElse(a, b) {
       var swap = $('.block:eq(' + a + ') .block-color .number').text();
